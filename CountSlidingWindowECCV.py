@@ -61,7 +61,7 @@ class WinProp:
 # ================================================================================================
 
 # The directory of your images        
-input_root_dir = "/home/nathan/caffe_data/image/"
+input_root_dir = ""
 
 # The list of your input images           
 input_image_file_list    = []
