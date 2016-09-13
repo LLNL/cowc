@@ -61,7 +61,7 @@ class WinProp:
 # ================================================================================================
 
 # The directory of your images        
-input_root_dir = ""
+input_root_dir = "LOCATION OF MY IMAGES"
 
 # The list of your input images           
 input_image_file_list    = []
@@ -119,9 +119,9 @@ start_layer         = 'Layer1_7x7/Convolution_Stride_2'
 # What is the softmax output layer?
 softmax_layer       = 'loss3/Softmax_plain'
 # The location of your prototxt network training file. 
-prototxt_net_file   = ''
+prototxt_net_file   = 'LOCATION OF MY TRAINING FILE'
 # The location of your trained caffe model
-caffemodel_file     = ''
+caffemodel_file     = 'LOCATION OF MY MODEL FILE'
 
 window_scale        = 1.0 / float(len(stride_list))
 
