@@ -143,9 +143,9 @@ start_layer         = 'Layer1_7x7/Convolution_Stride_2'
 # The final softmax output layer
 softmax_layer       = 'loss3/Softmax_plain'
 # The network prototxt file for Caffe
-prototxt_net_file   = 'train_val_COWC_bn_v3.prototxt'
+prototxt_net_file   = 'LOCATION OF MY TRAINING PROTOTXT'
 # The trained caffe model
-caffemodel_file     = 'my.caffemodel'
+caffemodel_file     = 'LOCATION OF MY CAFFE MODEL'
 # name to append to result files
 method_label        = 'train_val_COWC_v3'
 
@@ -165,7 +165,7 @@ patch_size          = 224
 # ================================================================================================
 
 # The directory of your images        
-input_root_dir = ""
+input_root_dir = "LOCATION OF MY IMAGES"
 
 # The list of your input images           
 input_image_file_list    = []
