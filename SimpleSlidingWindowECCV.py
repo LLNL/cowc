@@ -139,26 +139,15 @@ log_power           = 16
 # numeric threshold for a detection (0 to 255)
 threshold           = 196 
 # The starting layer in your network
-#start_layer         = 'Layer1_7x7/Convolution_Stride_2'
-# The final softmax output layer
-#softmax_layer       = 'loss3/Softmax_plain'
-# The network prototxt file for Caffe
-#prototxt_net_file   = '/home/nathan/caffe_data/bvlc_googlenet/train_val_COWC_bn_v3.prototxt'
-# The trained caffe model
-#caffemodel_file     = '/home/nathan/caffe_model/googlenet_finetune_web_COWC_bn_v3_24px-exc_v5-marg-32_COMBINED_iter_240000.caffemodel'
-# name to append to result files
-#method_label        = 'train_val_COWC_v3_COMBINED_new'
-
-# The starting layer in your network
-start_layer         = 'Interp_Layer1a_3x3/Convolution'
+start_layer         = 'Layer1_7x7/Convolution_Stride_2'
 # The final softmax output layer
 softmax_layer       = 'loss3/Softmax_plain'
-
-prototxt_net_file   = '/home/nathan/caffe_data/bvlc_googlenet/train_val_COWC_bn_v3_color-cond.prototxt'
-
-caffemodel_file     = '/home/nathan/caffe_model/googlenet_finetune_web_COWC_bn_v3_color-conv_24px-exc_v5-marg-32_iter_240000.caffemodel'
+# The network prototxt file for Caffe
+prototxt_net_file   = 'train_val_COWC_bn_v3.prototxt'
+# The trained caffe model
+caffemodel_file     = 'my.caffemodel'
 # name to append to result files
-method_label        = 'train_val_COWC_v3_color-cond'
+method_label        = 'train_val_COWC_v3'
 
 
 # Mean image values
@@ -176,7 +165,7 @@ patch_size          = 224
 # ================================================================================================
 
 # The directory of your images        
-input_root_dir = "/home/nathan/caffe_data/image/"
+input_root_dir = ""
 
 # The list of your input images           
 input_image_file_list    = []
