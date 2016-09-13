@@ -119,9 +119,9 @@ start_layer         = 'Layer1_7x7/Convolution_Stride_2'
 # What is the softmax output layer?
 softmax_layer       = 'loss3/Softmax_plain'
 # The location of your prototxt network training file. 
-prototxt_net_file   = '/home/nathan/caffe_data/bvlc_googlenet/train_val_COWC_bn_v3_taller_o3_count.prototxt'
+prototxt_net_file   = ''
 # The location of your trained caffe model
-caffemodel_file     = '/home/nathan/caffe_model/googlenet_finetune_web_COWC_bn_v3_taller_o3_count_COMBINED_iter_365000.caffemodel'
+caffemodel_file     = ''
 
 window_scale        = 1.0 / float(len(stride_list))
 
