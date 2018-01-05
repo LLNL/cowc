@@ -1,3 +1,42 @@
+# ================================================================================================
+# 
+# Cars Overhead With Context
+#
+# http://gdo-datasci.ucllnl.org/cowc/
+#
+# T. Nathan Mundhenk, Goran Konjevod, Wesam A. Sakla, Kofi Boakye 
+#
+# Lawrence Livermore National Laboratory
+# Global Security Directorate
+#
+# February 2018
+#
+# ================================================================================================
+#
+#    Copyright (C) 2018 Lawrence Livermore National Security
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# ================================================================================================
+#
+#   This work performed under the auspices of the U.S. Department of Energy by Lawrence Livermore
+#   National Laboratory under Contract DE-AC52-07NA27344.
+#
+#   LLNL-MI-702797
+#
+# ================================================================================================
+
 import pickle
 import math
 import cv2
@@ -81,43 +120,72 @@ def rotate_hue(img):
 #========================================================================================================================
 #========================================================================================================================
 
+# The pickle file with the list of cars
 unique_list         = '/data/shared/datasets/CarsOverheadWithContext/UniqueSet_256x256_15cm_24px-exc_v5-marg-32.pickle'
+# The location of the raw scenes
 raw_image_root      = '/data/shared/datasets/CarsOverheadWithContext/Organized_Raw_Files'
-#output_image_root   = '/data/shared/datasets/CarsOverheadWithContext/64x64_15cm_24px-exc_v5-marg-32_expanded'
-output_image_root   = '/data/shared/datasets/CarsOverheadWithContext/64x64_15cm_24px-exc_v5-marg-32_expanded_hue-rot'
+# Where to save the new patches we create
+output_image_root   = '/data/shared/datasets/CarsOverheadWithContext/64x64_15cm_24px-exc_v5-marg-32_expanded'
+
+# Here we specify the size of each patch along with a margin of mean gray to wrap the image in
+# We give four suggestions for sizes 
+
+# Sugeestion 1
 #patch_size          = 256
 #marg_size           = 32
+
+# Sugeestion 2
 #patch_size          = 232
 #marg_size           = 20
+
+# Sugeestion 3
 #patch_size          = 120
 #marg_size           = 4
+
+# Sugeestion 4
 patch_size          = 64
 marg_size           = 4
-color_permutes      = 1
 
+# If we set this to more than zero, we will create that many extra patches with color permutations
+color_permutes      = 0
+
+# For each patch, we will also create its rotation. Here we list all the rotations we would like to create
 rotation_set        = [0,15,30,45,60,75,90,105,120,135,150,165,180]
+# For testing we do the same, but use fewer rotations to keep the testing set more compact
 test_rotations      = [0,15,30,45]
+# We can create multiple scales in addition the just the standard one
 # Scales must be >= 1.0
 scale_set           = [1.0]
+# This is the mean color used in the margin. 
 mean_color          = [104, 117, 123]
 
+# ******************************************************************************************************************* 
+# ******************************************************************************************************************* 
+# Dont edit after here
+# ******************************************************************************************************************* 
+# ******************************************************************************************************************* 
 
-# patch required is the required image for rotation. We force it to be even
+# patch required is the required image for rotation. We force it to be even.
+# We use this to get our initial crop from the large raw scene. It's over sized so we can
+# then crop out the rotated patch without running out of bounds. 
 patch_required      = int( round( math.sqrt(patch_size*patch_size + patch_size*patch_size)/2.0 ) )*2
 if patch_required%2 != 0:
     patch_required = patch_required + 1
     
 visible_size        = patch_size - 2*marg_size
 
+# load in the list of car locations and negatives for creating patches
 print "Loading: " + unique_list
 
 in_file             = open(unique_list)
 
 item_list           = pickle.load(in_file)
 
+# Create the output directory if we don't have one yet
 if not os.path.isdir(output_image_root):
     os.mkdir(output_image_root)
 
+# we will run through all sample locations which are sorted by the original dataset (e.g. CSUAV or Utah)
 for file_dir in sorted(item_list):
     
     print "Processing Dir:\t" + file_dir
@@ -137,7 +205,7 @@ for file_dir in sorted(item_list):
     if not os.path.isdir(set_output_root_train):
         os.mkdir(set_output_root_train)
     
-
+    # For each of the large raw scene images
     for file_root in sorted(item_list[file_dir]):        
 
         raw_file = set_raw_root + '/' + file_root + '.png'
@@ -147,6 +215,7 @@ for file_dir in sorted(item_list):
         sys.stdout.write(pstring)
         sys.stdout.flush()
         
+        # load the large raw scene image
         raw_image = cv2.imread(raw_file)
         
         print "Image Size: "
@@ -158,21 +227,27 @@ for file_dir in sorted(item_list):
         
         counter = 0
         
+        # for each sample in this scene image
         for locs in sorted(item_list[file_dir][file_root]):
             
+            # Get the location of this sample
             loc_1 = int(locs.loc_1)
             loc_2 = int(locs.loc_2)
             
             temp_name       = "{}.{}.{:05d}.{:05d}".format(locs.type, file_root, loc_1, loc_2)
             full_temp_name  = set_output_root + '/' + locs.phase + '/' + temp_name
-            #print "Processing: " + full_temp_name
             
+            # detemine the window location of this patch within the large raw scene
             x1 = loc_1-patch_required/2
             x2 = loc_1+patch_required/2
             y1 = loc_2-patch_required/2
             y2 = loc_2+patch_required/2
             
+            # make sure we're in bounds, if not we can just add more gray area
             if x1 < 0 or y1 < 0 or x2 >= raw_image.shape[1] or y2 >= raw_image.shape[0]:
+                
+                # We are running outside the large raw scene image, so we need to get the visible
+                # area and then make the part of the patch that lies outside the image gray
                 temp_image           = np.empty((patch_required,patch_required,3),dtype=np.uint8)
                 temp_image[:,:,0]    = mean_color[0]
                 temp_image[:,:,1]    = mean_color[1]
@@ -201,35 +276,30 @@ for file_dir in sorted(item_list):
                 if y2 >= raw_image.shape[0]:
                     ty2 = patch_required + (raw_image.shape[0] - y2) - 1
                     ny2 = raw_image.shape[0] - 1
-                '''    
-                print "{}".format(patch_required)
-                print "{},{} {},{}".format(x1,x2,y1,y2)
-                    
-                print "FROM {},{} {},{}".format(nx1,nx2,ny1,ny2)
-                print "TO {},{} {},{}".format(tx1,tx2,ty1,ty2)
-                '''
+
+                # Get the part of the image that is inside the scene
                 temp_image[ty1:ty2,tx1:tx2,:]   = raw_image[ny1:ny2,nx1:nx2,:]
                 cropped_raw_image               = temp_image
             else:
+                # Patch is totally inside the image, we just crop out it. We leave some slack so we can
+                # crop out a final rotated image later
                 cropped_raw_image           = np.empty((patch_required,patch_required,3),dtype=np.uint8)
                 cropped_raw_image[:,:,:]    = raw_image[y1:y2,x1:x2,:]
             
-            #print "Running Permutations"
-            
             r_set = []
             
+            # if we are using a training image, we load a different set of rotation permutions than
+            # if we are using testing images
             if locs.phase == "test":
                 r_set = test_rotations
-                #continue
             else:
-                #continue
                 r_set = rotation_set
             
+            # for each rotation permutation
             for rot in r_set:
             
+                # create the rotated patch image
                 rot_img = permute_affine(cropped_raw_image, rot)
-                
-                #print "\tRunning Scales"
                 
                 for scale in scale_set:
                     
@@ -237,25 +307,27 @@ for file_dir in sorted(item_list):
                     
                     full_file_name  = set_output_root + '/' + locs.phase + '/' + file_name
                     
-                    #print "\tDoing: " + file_name
-                    
+                    # Zoom in if requested and do a final crop. 
                     out_image       = create_zoom_crop_image(rot_img, patch_size, marg_size, visible_size, mean_color, scale)
                     
+                    # Write the image patch out
                     cv2.imwrite(full_file_name, out_image, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
                     
+                    # only do color permutions on the training data
                     if locs.phase == "train":
                         
+                        # if we want to create color permutations, do it here. 
                         for p in range(color_permutes):
                             
+                            # We apply augmentation to the already cropped patch
                             nout            = rotate_hue(out_image)
                                             
                             file_name       = "{}.{}.{:05d}.{:05d}.{:04.2f}-{:03d}-HueRot-{}.jpg".format(locs.type, file_root, loc_1, loc_2, scale, rot, p)
                         
                             full_file_name  = set_output_root + '/' + locs.phase + '/' + file_name
                             
+                            # Write the image patch out
                             cv2.imwrite(full_file_name, nout, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
-                        
-                    #print "\tDONE"
             
             if counter > 0:
                 if counter%100 == 0:
