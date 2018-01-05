@@ -1,3 +1,42 @@
+# ================================================================================================
+# 
+# Cars Overhead With Context
+#
+# http://gdo-datasci.ucllnl.org/cowc/
+#
+# T. Nathan Mundhenk, Goran Konjevod, Wesam A. Sakla, Kofi Boakye 
+#
+# Lawrence Livermore National Laboratory
+# Global Security Directorate
+#
+# February 2018
+#
+# ================================================================================================
+#
+#    Copyright (C) 2018 Lawrence Livermore National Security
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# ================================================================================================
+#
+#   This work performed under the auspices of the U.S. Department of Energy by Lawrence Livermore
+#   National Laboratory under Contract DE-AC52-07NA27344.
+#
+#   LLNL-MI-702797
+#
+# ================================================================================================
+
 import pickle
 import math
 import cv2
