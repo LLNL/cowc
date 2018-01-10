@@ -60,5 +60,10 @@
 	to extract labels. This is in part because different detection engines use different labeling 
 	schemes. You should use the script CreatePatchScenes.py more as an example for how to do this 
 	and make changes as needed. 
+	
+----
+
+T. Nathan Mundhenk
+mundhenk1@llnl.gov
 
 
