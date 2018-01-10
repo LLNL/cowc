@@ -22,3 +22,8 @@
 	
 	We have also included tools to make it easier to process our labeled data than was 
 	the case previously. These scripts are in the folder COWC-M. 
+
+----
+
+T. Nathan Mundhenk
+mundhenk1@llnl.goc
