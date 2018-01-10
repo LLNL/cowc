@@ -10,7 +10,7 @@
 	
 		http://gdo152.ucllnl.org/cowc/
 
-(2)	Download new scripts for our COWC-M dataset. 
+(2)	OR ... Download new scripts for our COWC-M dataset. 
 
 	This set extends our original COWC dataset by adding labels for the types of cars. 
 	These are:
