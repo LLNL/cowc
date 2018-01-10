@@ -1,6 +1,83 @@
+# ================================================================================================
+# 
+# Cars Overhead With Context
+#
+# http://gdo-datasci.ucllnl.org/cowc/
+#
+# T. Nathan Mundhenk, Goran Konjevod, Wesam A. Sakla, Kofi Boakye 
+#
+# Lawrence Livermore National Laboratory
+# Global Security Directorate
+#
+# February 2018
+#
+# ================================================================================================
+#
+#    Copyright (C) 2018 Lawrence Livermore National Security
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as
+#    published by the Free Software Foundation, either version 3 of the
+#    License, or (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# ================================================================================================
+#
+#   This work performed under the auspices of the U.S. Department of Energy by Lawrence Livermore
+#   National Laboratory under Contract DE-AC52-07NA27344.
+#
+#   LLNL-MI-702797
+#
+# ================================================================================================
+
 import string
 import os
 import shutil
+
+# ================================================================================================        
+
+# This is a directory where we have a set of uniquely labeled car images
+# ftp://gdo152.ucllnl.org/cowc-m/datasets/Sorted_Cars_By_Type_15cm_24px-exc_v5-marg-32_expanded.tgz
+type_dir            = '/Users/mundhenk1/Downloads/temp/Sorted_Cars_By_Type_15cm_24px-exc_v5-marg-32_expanded'
+
+# These are raw images we will match to the labeled car images
+# ftp://gdo152.ucllnl.org/cowc-m/datasets/64x64_15cm_24px-exc_v5-marg-32_expanded.tgz
+# OR
+# You can create your own with CreateDetectionPatches.py
+data_dir            = '/Users/mundhenk1/Downloads/temp/64x64_15cm_24px-exc_v5-marg-32_expanded'
+
+# Where should we 
+train_list_file     = data_dir + '/train_list_TARANTO.txt'
+test_list_file      = data_dir + '/test_list_TARANTO.txt'
+
+# Ignore the unknown labeled cars? Set this to {4}
+ignore_list         = {4}
+# Otherwise, leave blank to use the unknown 
+#ignore_list         = {}
+
+# For old style 2, for expanded 3
+endlen = 3
+
+# What label should we give each item?
+# The order here is {Not Car, Other, Pickup, Sedan, Unknown 
+label_str_list  = ["0","1","2","3","4"]
+
+# If zero, we give no extra samples, otherwise we do that many extra (times) for each sample
+# The order here is {Not Car, Other, Pickup, Sedan, Unknown 
+extra_samples   = [0,0,0,0,0]
+
+# ================================================================================================ 
+# ================================================================================================ 
+# DONT'T EDIT BELOW HERE
+# ================================================================================================ 
+# ================================================================================================ 
 
 def getClass(file_name, label_set, car_prefix, endlen):    
     
@@ -17,8 +94,7 @@ def getClass(file_name, label_set, car_prefix, endlen):
     
     else:
         return 0
-        
-        
+                
 # ================================================================================================ 
 def getLabels(file_root, label_set, label_num):
     
@@ -44,27 +120,6 @@ def getLabels(file_root, label_set, label_num):
         label_set[unique_name] = label_num
     
     return label_set  
-
-# ================================================================================================        
-
-#type_dir            = '/data/shared/datasets/CarsOverheadWithContext/Sorted_Cars_By_Type'
-#data_dir            = '/data/shared/datasets/CarsOverheadWithContext/120x120_15cm_24px-exc_v5-marg-32_expanded'
-type_dir            = '/g/g17/mundhetn/data/CarsOverheadWithContext/Sorted_Cars_By_Type'
-
-#data_dir            = '/g/g17/mundhetn/data/CarsOverheadWithContext/64x64_15cm_24px-exc_v5-marg-32_expanded_25p'
-#data_dir            = '/g/g17/mundhetn/data/CarsOverheadWithContext/64x64_15cm_24px-exc_v5-marg-32_expanded'
-data_dir            = '/data/shared/datasets/CarsOverheadWithContext/64x64_15cm_24px-exc_v5-marg-32_expanded_hue-rot'
-#data_dir            = '/g/g17/mundhetn/data/CarsOverheadWithContext/120x120_15cm_24px-exc_v5-marg-32_expanded'
-#data_dir            = '/g/g17/mundhetn/data/CarsOverheadWithContext/232x232_15cm_24px-exc_v5-marg-32_expanded'
-#data_dir            = '/g/g17/mundhetn/data/CarsOverheadWithContext/116x116_15cm_expanded_66p_3-scales_gray_r-motion'
-
-train_list_file     = data_dir + '/train_3types_extra-trucks-3x.txt'
-test_list_file      = data_dir + '/test_3types_extra-trucks-3x.txt'
-ignore_list         = {4}
-#ignore_list         = {}
-
-# For old style 2, for expanded 3
-endlen = 3
 
 # ================================================================================================
 # Get the lable of each car by directory
@@ -103,12 +158,6 @@ train_count     = [0,0,0,0,0]
 test_samples    = 0
 train_samples   = 0
 car_prefix      = 'car'
-
-#label_str_list  = ["0 -1 -1 -1", "1 -1 -1 -1", "2 -1 -1 -1", "3 -1 -1 -1", "1 2 3 4"]
-label_str_list  = ["0","1","2","3","4"]
-
-# If zero, we give no extra samples, otherwise we do that many extra (times) for each sample
-extra_samples   = [0,0,3,0,0]
 
 files_root  = os.listdir(data_dir)
 

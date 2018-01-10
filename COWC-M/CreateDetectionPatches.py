@@ -46,6 +46,54 @@ import os
 import shutil
 import sys
 
+# The pickle file with the list of cars
+# ftp://gdo152.ucllnl.org/cowc-m/datasets/Objects_15cm_24px-exc_v5-marg-32.pickle
+unique_list         = '/Users/mundhenk1/Downloads/temp/Objects_15cm_24px-exc_v5-marg-32.pickle'
+# The location of the raw scenes
+# ftp://gdo152.ucllnl.org/cowc-m/datasets/Organized_Raw_Files.tgz
+raw_image_root      = '/Users/mundhenk1/Downloads/temp/Organized_Raw_Files'
+# Where to save the new patches we create on our local drive
+output_image_root   = '/Users/mundhenk1/Downloads/temp/64x64_15cm_24px-exc_v5-marg-32_expanded'
+
+# Here we specify the size of each patch along with a margin of mean gray to wrap the image in
+# We give four suggestions for sizes 
+
+# Sugeestion 1
+#patch_size          = 256
+#marg_size           = 32
+
+# Sugeestion 2
+#patch_size          = 232
+#marg_size           = 20
+
+# Sugeestion 3
+#patch_size          = 120
+#marg_size           = 4
+
+# Sugeestion 4
+patch_size          = 64
+marg_size           = 4
+
+# If we set this to more than zero, we will create that many extra patches with color permutations
+color_permutes      = 0
+
+# For each patch, we will also create its rotation. Here we list all the rotations we would like to create
+rotation_set        = [0,15,30,45,60,75,90,105,120,135,150,165,180]
+# For testing we do the same, but use fewer rotations to keep the testing set more compact
+test_rotations      = [0,15,30,45]
+# We can create multiple scales in addition the just the standard one
+# Scales must be >= 1.0
+scale_set           = [1.0]
+# This is the mean color used in the margin. 
+mean_color          = [104, 117, 123]
+
+# ******************************************************************************************************************* 
+# ******************************************************************************************************************* 
+# Dont edit after here
+# ******************************************************************************************************************* 
+# ******************************************************************************************************************* 
+
+
 #========================================================================================================================
 
 class CarProp:
@@ -119,51 +167,6 @@ def rotate_hue(img):
 
 #========================================================================================================================
 #========================================================================================================================
-
-# The pickle file with the list of cars
-unique_list         = '/data/shared/datasets/CarsOverheadWithContext/UniqueSet_256x256_15cm_24px-exc_v5-marg-32.pickle'
-# The location of the raw scenes
-raw_image_root      = '/data/shared/datasets/CarsOverheadWithContext/Organized_Raw_Files'
-# Where to save the new patches we create
-output_image_root   = '/data/shared/datasets/CarsOverheadWithContext/64x64_15cm_24px-exc_v5-marg-32_expanded'
-
-# Here we specify the size of each patch along with a margin of mean gray to wrap the image in
-# We give four suggestions for sizes 
-
-# Sugeestion 1
-#patch_size          = 256
-#marg_size           = 32
-
-# Sugeestion 2
-#patch_size          = 232
-#marg_size           = 20
-
-# Sugeestion 3
-#patch_size          = 120
-#marg_size           = 4
-
-# Sugeestion 4
-patch_size          = 64
-marg_size           = 4
-
-# If we set this to more than zero, we will create that many extra patches with color permutations
-color_permutes      = 0
-
-# For each patch, we will also create its rotation. Here we list all the rotations we would like to create
-rotation_set        = [0,15,30,45,60,75,90,105,120,135,150,165,180]
-# For testing we do the same, but use fewer rotations to keep the testing set more compact
-test_rotations      = [0,15,30,45]
-# We can create multiple scales in addition the just the standard one
-# Scales must be >= 1.0
-scale_set           = [1.0]
-# This is the mean color used in the margin. 
-mean_color          = [104, 117, 123]
-
-# ******************************************************************************************************************* 
-# ******************************************************************************************************************* 
-# Dont edit after here
-# ******************************************************************************************************************* 
-# ******************************************************************************************************************* 
 
 # patch required is the required image for rotation. We force it to be even.
 # We use this to get our initial crop from the large raw scene. It's over sized so we can

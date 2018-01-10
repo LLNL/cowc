@@ -47,6 +47,27 @@ import shutil
 import sys
 import copy
 
+# ftp://gdo152.ucllnl.org/cowc-m/datasets/Objects_All.pickle
+unique_list         = '/Users/mundhenk1/Downloads/temp/Objects_All.pickle'
+# ftp://gdo152.ucllnl.org/cowc-m/datasets/Organized_Raw_Files.tgz
+raw_image_root      = '/Users/mundhenk1/Downloads/temp/Organized_Raw_Files'
+# Somewhere on your local drive
+output_image_root   = '/Users/mundhenk1/Downloads/temp/DetectionPatches_256x256'
+# How large should each example patch be
+patch_size          = 256
+# striding step for extract patches from the large orignal image
+step_size           = 128
+# Should we also extract negative examples (no you shouldn't)
+cars_only           = True
+# How many pixels in size is the typical car?
+car_size            = 32
+
+# ******************************************************************************************************************* 
+# ******************************************************************************************************************* 
+# Dont edit after here
+# ******************************************************************************************************************* 
+# ******************************************************************************************************************* 
+
 #========================================================================================================================
 
 class CarProp:
@@ -92,31 +113,15 @@ def create_zoom_crop_image(in_image, patch_size, marg_size, visible_size, mean_c
 #========================================================================================================================
 
 def permute_affine(in_img, r_rotate):
-    #print in_img.shape     
+   
     rot         = cv2.getRotationMatrix2D((in_img.shape[1]/2, in_img.shape[0]/2), r_rotate, 1.0) 
-    #print rot
-    #print ">>> WARPING"
     out_img     = cv2.warpAffine(in_img, rot, (in_img.shape[1], in_img.shape[0])) 
-    #print ">>>> DONE"
+
     return out_img.astype(np.uint8)
 
 #========================================================================================================================
 #========================================================================================================================
 
-#unique_list         = '/data/shared/datasets/CarsOverheadWithContext/UniqueClassSet_256x256_15cm_24px-exc_v5-marg-32.pickle'
-unique_list         = '/data/shared/datasets/CarsOverheadWithContext/UniqueClassSet_256x256.pickle'
-raw_image_root      = '/data/shared/datasets/CarsOverheadWithContext/Organized_Raw_Files'
-output_image_root   = '/data/shared/datasets/CarsOverheadWithContext/DetectionPatches_256x256_s128_w-7000-new'
-patch_size          = 256
-step_size           = 128
-cars_only           = True
-'''
-rotation_set        = [0,15,30,45,60,75,90,105,120,135,150,165,180]
-test_rotations      = [0,15,30,45]
-# Scales must be >= 1.0
-scale_set           = [1.0]
-mean_color          = [104, 117, 123]
-'''
 assert(patch_size%step_size==0)
 part_steps          = patch_size / step_size
 
@@ -173,7 +178,7 @@ for file_dir in sorted(item_list):
         for y in range(steps_y + 1):
             ts = []
             for x in range(steps_x + 1):
-                #ll = list
+
                 ts.append([])
                 
             step_locs.append(ts)
@@ -187,14 +192,6 @@ for file_dir in sorted(item_list):
             step_loc_1 = int(loc_1)/int(step_size)
             step_loc_2 = int(loc_2)/int(step_size)
             
-            '''
-            print("x,y {} {}".format(int(loc_1),int(loc_2)))
-            '''
-            #print("to {} {}".format(step_loc_1,step_loc_2))
-            '''
-            print("from {}".format(len(step_locs)))
-            print("from {}".format(len(step_locs[step_loc_2])))
-            '''
             step_locs[step_loc_2][step_loc_1].append(locs)
             
         for y in range(steps_y):
@@ -222,9 +219,7 @@ for file_dir in sorted(item_list):
                 for sy in range(part_steps):
                     for sx in range(part_steps):
                         
-                        for locs in step_locs[y + sy][x + sx]:
-                            
-                            #print("{} type {} at {}x{}".format(file_root, locs.obj_class, x + sx,y + sy))
+                        for locs in step_locs[y + sy][x + sx]:                         
                             
                             if locs.obj_class != 0:
                                 obj_list.append(locs)
@@ -240,8 +235,8 @@ for file_dir in sorted(item_list):
                     for l in obj_list:
                         x_loc   = float(int(l.loc_1) - x1)/float(patch_size)
                         y_loc   = float(int(l.loc_2) - y1)/float(patch_size)
-                        h       = 32.0/float(patch_size)
-                        w       = 32.0/float(patch_size)
+                        h       = float(car_size)/float(patch_size)
+                        w       = float(car_size)/float(patch_size)
                         
                         if cars_only:
                             if l.obj_class != 0:        
@@ -260,7 +255,10 @@ for file_dir in sorted(item_list):
                         elif l.obj_class == 4:
                             col = (0,0,0)  
                                  
-                        img_patch_cp = cv2.rectangle(img_patch_cp,(int(l.loc_1)- x1+16,int(l.loc_2)- y1+16),(int(l.loc_1)- x1-16,int(l.loc_2)- y1-16),col)
+                        img_patch_cp = cv2.rectangle(img_patch_cp,
+                                                     (int(l.loc_1)- x1+(car_size/2),int(l.loc_2)- y1+(car_size/2)),
+                                                     (int(l.loc_1)- x1-(car_size/2),int(l.loc_2)- y1-(car_size/2)),
+                                                     col)
                         
                     cv2.imwrite(ck_name, img_patch_cp) 
             
