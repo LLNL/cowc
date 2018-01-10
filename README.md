@@ -22,6 +22,9 @@
 	
 	We have also included tools to make it easier to process our labeled data than was 
 	the case previously. These scripts are in the folder COWC-M. 
+	
+	The README.md file in COWC-M describes this further as well as usage. On github, you
+	can just click on COWC-M and it will pop up. 
 
 ----
 
