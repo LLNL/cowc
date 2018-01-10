@@ -10,7 +10,7 @@
 	
 		ftp://gdo152.ucllnl.org/cowc-m/datasets/  
 	
-(1)	COWC-M data extraction scripts
+(2)	COWC-M data extraction scripts
 
 	These are scripts for extracting training patches of different types from the COWC-M dataset. 
 	Two of them will extract patches and label them for use with Caffe in a way that is similar 
