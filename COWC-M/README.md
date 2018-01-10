@@ -1,26 +1,37 @@
 (1)	Introduction
 
+	The COWC-M dataset extends our original COWC dataset described in ECCV ’16 by labeling
+	the cars with types. Each car is now labeled as either Sedan, Pickup, Other or Unknown. 
+	We have also created tools to help one create new patches or extract labeled sets 
+	compatible with standard detection methods such as Faster-RCNN. 
+	
+	You can either use the scripts provided to extract new data or you can download pre-made
+	datasets from:
+	
+		ftp://gdo152.ucllnl.org/cowc-m/datasets/  
+	
+(1)	COWC-M data extraction scripts
+
 	These are scripts for extracting training patches of different types from the COWC-M dataset. 
 	Two of them will extract patches and label them for use with Caffe in a way that is similar 
 	to our original patches from ECCV ’16. The main differences is that now the type of car is 
 	labeled as Sedan, Pickup, Other and Unknown rather than as just ‘car’. We describe them more 
 	later, but the scripts are:
 	
-	CreateDetectionPatches.py
-	CreatePatchLabels.py
+		CreateDetectionPatches.py
+		CreatePatchLabels.py
 	
 	Note that you can just download pre-extracted patches from our ftp at:
 	
-	ftp://gdo152.ucllnl.org/cowc-m/datasets/64x64_15cm_24px-exc_v5-marg-32_expanded.tgz
-	
+		ftp://gdo152.ucllnl.org/cowc-m/datasets/64x64_15cm_24px-exc_v5-marg-32_expanded.tgz
 	
 	The other script will extract cars with detection locations in a manner more compatible with 
 	detection methods such as Faster-RCNN. This creates multiple patch scenes and a location label 
 	for each scene. This is called:
 	
-	CreatePatchScenes.py
+		CreatePatchScenes.py
 
-(2)	Creating new patches
+(3)	Creating new patches
 
 	There are only three steps to creating your own training patches:
 	
@@ -43,7 +54,7 @@
 	training images. Next you will need to run CreatePatchLabels.py to create a set of patch labels. 
 	Once you have called both, you should have all you need to train a Caffe network on your data. 
 
-(3)	Creating new scenes
+(4)	Creating new scenes
 
 	You run this in the same way as for creating training patches, but you don’t need to run a script 
 	to extract labels. This is in part because different detection engines use different labeling 
