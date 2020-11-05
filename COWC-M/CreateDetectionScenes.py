@@ -123,7 +123,7 @@ def permute_affine(in_img, r_rotate):
 #========================================================================================================================
 
 assert(patch_size%step_size==0)
-part_steps          = patch_size / step_size
+part_steps = int(patch_size / step_size)
 
 # patch required is the required image for rotation. We force it to be even
 patch_required      = int( round( math.sqrt(patch_size*patch_size + patch_size*patch_size)/2.0 ) )*2
@@ -132,7 +132,7 @@ if patch_required%2 != 0:
     
 print "Loading: " + unique_list
 
-in_file             = open(unique_list)
+in_file             = open(unique_list, 'rb')
 
 item_list           = pickle.load(in_file)
 
@@ -184,7 +184,7 @@ for file_dir in sorted(item_list):
             step_locs.append(ts)
         
         
-        for locs in sorted(item_list[file_dir][file_root]):
+        for locs in item_list[file_dir][file_root]:
             
             loc_1 = int(locs.loc_1)
             loc_2 = int(locs.loc_2)
@@ -255,10 +255,20 @@ for file_dir in sorted(item_list):
                         elif l.obj_class == 4:
                             col = (0,0,0)  
                                  
-                        img_patch_cp = cv2.rectangle(img_patch_cp,
-                                                     (int(l.loc_1)- x1+(car_size/2),int(l.loc_2)- y1+(car_size/2)),
-                                                     (int(l.loc_1)- x1-(car_size/2),int(l.loc_2)- y1-(car_size/2)),
-                                                     col)
+                        x_1 = int(int(l.loc_1) - x1 + (car_size / 2))
+                        y_1 = int(int(l.loc_2) - y1 + (car_size / 2))
+                        x_2 = int(int(l.loc_1) - x1 - (car_size / 2))
+                        y_2 = int(int(l.loc_2) - y1 - (car_size / 2))
+
+                        coords = [x_1, y_1, x_2, y_2]
+                        for i in range(len(coords)):
+                            coord = coords[i]
+                            if coord < 0:
+                                coords[i] = 0
+                            if coord > patch_size:
+                                coords[i] = patch_size
+
+                        img_patch_cp = cv2.rectangle(img_patch_cp, (coords[0], coords[1]), (coords[2], coords[3]), col, 1)
                         
                     cv2.imwrite(ck_name, img_patch_cp) 
             
