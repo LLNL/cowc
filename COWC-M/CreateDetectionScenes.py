@@ -245,15 +245,20 @@ for file_dir in sorted(item_list):
                             bb_file.write("{} {} {} {} {}\n".format(l.obj_class,x_loc,y_loc,h,w))
                 
                         if l.obj_class == 0:
-                            col = (255,255,255)
+                            # white
+                            col = (255, 255, 255)
                         elif l.obj_class == 1:
-                            col = (0,0,255)   
+                            # red
+                            col = (0, 0, 255)
                         elif l.obj_class == 2:
-                            col = (0,255,0)      
+                            # green
+                            col = (0, 255, 0)
                         elif l.obj_class == 3:
-                            col = (255,0,0)   
+                            # blue
+                            col = (255, 0, 0)
                         elif l.obj_class == 4:
-                            col = (0,0,0)  
+                            # purple
+                            col = (150, 0, 200) 
                                  
                         x_1 = int(int(l.loc_1) - x1 + (car_size / 2))
                         y_1 = int(int(l.loc_2) - y1 + (car_size / 2))
