@@ -123,14 +123,14 @@ def permute_affine(in_img, r_rotate):
 #========================================================================================================================
 
 assert(patch_size%step_size==0)
-part_steps          = patch_size / step_size
+part_steps = int(patch_size / step_size)
 
 # patch required is the required image for rotation. We force it to be even
 patch_required      = int( round( math.sqrt(patch_size*patch_size + patch_size*patch_size)/2.0 ) )*2
 if patch_required%2 != 0:
     patch_required = patch_required + 1
     
-print "Loading: " + unique_list
+print("Loading: " + unique_list)
 
 in_file             = open(unique_list)
 
@@ -141,7 +141,7 @@ if not os.path.isdir(output_image_root):
 
 for file_dir in sorted(item_list):
     
-    print "Processing Dir:\t" + file_dir
+    print("Processing Dir:\t" + file_dir)
     
     set_raw_root            = raw_image_root    + '/' + file_dir
     set_output_root         = output_image_root + '/' + file_dir
@@ -161,12 +161,10 @@ for file_dir in sorted(item_list):
         
         raw_image = cv2.imread(raw_file)
         
-        print "Image Size: "
-        print raw_image.shape
-        
-        print "Done"
-        
-        print "Processing:"
+        print("Image Size: " + str(raw_image.shape))
+        print("Done")
+
+        print("Processing:")
         
         counter = 0
         
@@ -184,7 +182,7 @@ for file_dir in sorted(item_list):
             step_locs.append(ts)
         
         
-        for locs in sorted(item_list[file_dir][file_root]):
+        for locs in item_list[file_dir][file_root]:
             
             loc_1 = int(locs.loc_1)
             loc_2 = int(locs.loc_2)
@@ -255,10 +253,12 @@ for file_dir in sorted(item_list):
                         elif l.obj_class == 4:
                             col = (0,0,0)  
                                  
-                        img_patch_cp = cv2.rectangle(img_patch_cp,
-                                                     (int(l.loc_1)- x1+(car_size/2),int(l.loc_2)- y1+(car_size/2)),
-                                                     (int(l.loc_1)- x1-(car_size/2),int(l.loc_2)- y1-(car_size/2)),
-                                                     col)
+                        x_1 = int(int(l.loc_1) - x1 + (car_size / 2))
+                        y_1 = int(int(l.loc_2) - y1 + (car_size / 2))
+                        x_2 = int(int(l.loc_1) - x1 - (car_size / 2))
+                        y_2 = int(int(l.loc_2) - y1 - (car_size / 2))
+
+                        img_patch_cp = cv2.rectangle(img_patch_cp, (x_1, y_1), (x_1, y_1), col)
                         
                     cv2.imwrite(ck_name, img_patch_cp) 
             
@@ -271,7 +271,7 @@ for file_dir in sorted(item_list):
                         sys.stdout.flush()
                 counter += 1
             
-        print 'x'
+        print('x')
             
                     
             
