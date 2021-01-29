@@ -55,22 +55,23 @@ raw_image_root      = '/Users/mundhenk1/Downloads/temp/Organized_Raw_Files'
 # Where to save the new patches we create on our local drive
 output_image_root   = '/Users/mundhenk1/Downloads/temp/64x64_15cm_24px-exc_v5-marg-32_expanded'
 
+
 # Here we specify the size of each patch along with a margin of mean gray to wrap the image in
 # We give four suggestions for sizes 
 
-# Sugeestion 1
+# Suggestion 1
 #patch_size          = 256
 #marg_size           = 32
 
-# Sugeestion 2
+# Suggestion 2
 #patch_size          = 232
 #marg_size           = 20
 
-# Sugeestion 3
+# Suggestion 3
 #patch_size          = 120
 #marg_size           = 4
 
-# Sugeestion 4
+# Suggestion 4
 patch_size          = 64
 marg_size           = 4
 
@@ -112,24 +113,23 @@ def create_zoom_crop_image(in_image, patch_size, marg_size, visible_size, mean_c
     out_image[:,:,1]    = mean_color[1]
     out_image[:,:,2]    = mean_color[2]
     
-    
     if zoom != 1.0:
         in_image_scaled     = cv2.resize(in_image,(0,0),fx=float(zoom),fy=float(zoom))
     else:
         in_image_scaled     = in_image
         
-    out_center          = patch_size/2
-    in_center           = in_image_scaled.shape[0]/2
+    out_center          = int(patch_size//2)
+    in_center           = int(in_image_scaled.shape[0]//2)
     
-    x1_out              = out_center-visible_size/2
-    x2_out              = out_center+visible_size/2+1
-    y1_out              = out_center-visible_size/2
-    y2_out              = out_center+visible_size/2+1
+    x1_out              = int(out_center-visible_size//2)
+    x2_out              = int(out_center+visible_size//2+1)
+    y1_out              = int(out_center-visible_size//2)
+    y2_out              = int(out_center+visible_size//2+1)
     
-    x1_in               = in_center-visible_size/2
-    x2_in               = in_center+visible_size/2+1
-    y1_in               = in_center-visible_size/2
-    y2_in               = in_center+visible_size/2+1
+    x1_in               = int(in_center-visible_size//2)
+    x2_in               = int(in_center+visible_size//2+1)
+    y1_in               = int(in_center-visible_size//2)
+    y2_in               = int(in_center+visible_size//2+1)
     
     out_image[y1_out:y2_out,x1_out:x2_out,:] = in_image[y1_in:y2_in,x1_in:x2_in,:]
     
@@ -137,16 +137,13 @@ def create_zoom_crop_image(in_image, patch_size, marg_size, visible_size, mean_c
 
 #========================================================================================================================
 
-def permute_affine(in_img, r_rotate):
-    #print in_img.shape     
-    rot         = cv2.getRotationMatrix2D((in_img.shape[1]/2, in_img.shape[0]/2), r_rotate, 1.0) 
-    #print rot
-    #print ">>> WARPING"
+def permute_affine(in_img, r_rotate): 
+    rot         = cv2.getRotationMatrix2D((in_img.shape[1]//2, in_img.shape[0]//2), r_rotate, 1.0) 
     out_img     = cv2.warpAffine(in_img, rot, (in_img.shape[1], in_img.shape[0])) 
-    #print ">>>> DONE"
     return out_img.astype(np.uint8)
 
 #========================================================================================================================
+
 def rotate_hue(img):
 
     npermute = np.random.randint(0,5)
@@ -161,7 +158,6 @@ def rotate_hue(img):
         nimg = img[:,:,[1,2,0]]
     elif npermute == 4:
         nimg = img[:,:,[2,0,1]]
-
 
     return nimg
 
@@ -178,9 +174,9 @@ if patch_required%2 != 0:
 visible_size        = patch_size - 2*marg_size
 
 # load in the list of car locations and negatives for creating patches
-print "Loading: " + unique_list
+print("Loading: " + unique_list)
 
-in_file             = open(unique_list)
+in_file             = open(unique_list, 'rb')
 
 item_list           = pickle.load(in_file)
 
@@ -191,16 +187,16 @@ if not os.path.isdir(output_image_root):
 # we will run through all sample locations which are sorted by the original dataset (e.g. CSUAV or Utah)
 for file_dir in sorted(item_list):
     
-    print "Processing Dir:\t" + file_dir
+    print("Processing Dir:\t" + file_dir)
     
-    set_raw_root            = raw_image_root    + '/' + file_dir
-    set_output_root         = output_image_root + '/' + file_dir
+    set_raw_root            = os.path.join(raw_image_root, file_dir)
+    set_output_root         = os.path.join(output_image_root, file_dir)
     
     if not os.path.isdir(set_output_root):
         os.mkdir(set_output_root)
         
-    set_output_root_test    = set_output_root + '/test'
-    set_output_root_train   = set_output_root + '/train'
+    set_output_root_test    = os.path.join(set_output_root, 'test')
+    set_output_root_train   = os.path.join(set_output_root, 'train')
     
     if not os.path.isdir(set_output_root_test):
         os.mkdir(set_output_root_test)
@@ -211,7 +207,7 @@ for file_dir in sorted(item_list):
     # For each of the large raw scene images
     for file_root in sorted(item_list[file_dir]):        
 
-        raw_file = set_raw_root + '/' + file_root + '.png'
+        raw_file = os.path.join(set_raw_root, "{}.png".format(file_root))
         
         pstring =  "\tReading Raw File:\t" + raw_file + " ... "
         
@@ -221,30 +217,30 @@ for file_dir in sorted(item_list):
         # load the large raw scene image
         raw_image = cv2.imread(raw_file)
         
-        print "Image Size: "
-        print raw_image.shape
+        print("Image Size: ")
+        print(raw_image.shape)
         
-        print "Done"
+        print("Done")
         
-        print "Processing:"
+        print("Processing:")
         
         counter = 0
         
         # for each sample in this scene image
-        for locs in sorted(item_list[file_dir][file_root]):
+        for locs in item_list[file_dir][file_root]:
             
             # Get the location of this sample
             loc_1 = int(locs.loc_1)
             loc_2 = int(locs.loc_2)
             
             temp_name       = "{}.{}.{:05d}.{:05d}".format(locs.type, file_root, loc_1, loc_2)
-            full_temp_name  = set_output_root + '/' + locs.phase + '/' + temp_name
+            full_temp_name  = os.path.join(set_output_root, locs.phase, temp_name)
             
             # detemine the window location of this patch within the large raw scene
-            x1 = loc_1-patch_required/2
-            x2 = loc_1+patch_required/2
-            y1 = loc_2-patch_required/2
-            y2 = loc_2+patch_required/2
+            x1 = int(loc_1-patch_required//2)
+            x2 = int(loc_1+patch_required//2)
+            y1 = int(loc_2-patch_required//2)
+            y2 = int(loc_2+patch_required//2)
             
             # make sure we're in bounds, if not we can just add more gray area
             if x1 < 0 or y1 < 0 or x2 >= raw_image.shape[1] or y2 >= raw_image.shape[0]:
@@ -308,7 +304,7 @@ for file_dir in sorted(item_list):
                     
                     file_name       = "{}.{}.{:05d}.{:05d}.{:04.2f}-{:03d}.jpg".format(locs.type, file_root, loc_1, loc_2, scale, rot)
                     
-                    full_file_name  = set_output_root + '/' + locs.phase + '/' + file_name
+                    full_file_name  = os.path.join(set_output_root, locs.phase, file_name)
                     
                     # Zoom in if requested and do a final crop. 
                     out_image       = create_zoom_crop_image(rot_img, patch_size, marg_size, visible_size, mean_color, scale)
@@ -327,7 +323,7 @@ for file_dir in sorted(item_list):
                                             
                             file_name       = "{}.{}.{:05d}.{:05d}.{:04.2f}-{:03d}-HueRot-{}.jpg".format(locs.type, file_root, loc_1, loc_2, scale, rot, p)
                         
-                            full_file_name  = set_output_root + '/' + locs.phase + '/' + file_name
+                            full_file_name  = os.path.join(set_output_root, locs.phase, file_name)
                             
                             # Write the image patch out
                             cv2.imwrite(full_file_name, nout, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
@@ -341,7 +337,7 @@ for file_dir in sorted(item_list):
                     sys.stdout.flush()
             counter += 1
             
-        print 'x'
+        print('x')
             
                     
             

@@ -49,10 +49,14 @@ import copy
 
 # ftp://gdo152.ucllnl.org/cowc-m/datasets/Objects_All.pickle
 unique_list         = '/Users/mundhenk1/Downloads/temp/Objects_All.pickle'
+#unique_list         = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Objects_All.pickle"
 # ftp://gdo152.ucllnl.org/cowc-m/datasets/Organized_Raw_Files.tgz
 raw_image_root      = '/Users/mundhenk1/Downloads/temp/Organized_Raw_Files'
+#raw_image_root      = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Organized_Raw_Files"
 # Somewhere on your local drive
 output_image_root   = '/Users/mundhenk1/Downloads/temp/DetectionPatches_256x256'
+#output_image_root   = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\outputs\DetectionPatches_256x256"
+
 # How large should each example patch be
 patch_size          = 256
 # striding step for extract patches from the large orignal image
@@ -93,18 +97,18 @@ def create_zoom_crop_image(in_image, patch_size, marg_size, visible_size, mean_c
     else:
         in_image_scaled     = in_image
         
-    out_center          = patch_size/2
-    in_center           = in_image_scaled.shape[0]/2
+    out_center          = int(patch_size//2)
+    in_center           = int(in_image_scaled.shape[0]//2)
     
-    x1_out              = out_center-visible_size/2
-    x2_out              = out_center+visible_size/2+1
-    y1_out              = out_center-visible_size/2
-    y2_out              = out_center+visible_size/2+1
+    x1_out              = int(out_center-visible_size//2)
+    x2_out              = int(out_center+visible_size//2+1)
+    y1_out              = int(out_center-visible_size//2)
+    y2_out              = int(out_center+visible_size//2+1)
     
-    x1_in               = in_center-visible_size/2
-    x2_in               = in_center+visible_size/2+1
-    y1_in               = in_center-visible_size/2
-    y2_in               = in_center+visible_size/2+1
+    x1_in               = int(in_center-visible_size//2)
+    x2_in               = int(in_center+visible_size//2+1)
+    y1_in               = int(in_center-visible_size//2)
+    y2_in               = int(in_center+visible_size//2+1)
     
     out_image[y1_out:y2_out,x1_out:x2_out,:] = in_image[y1_in:y2_in,x1_in:x2_in,:]
     
@@ -114,7 +118,7 @@ def create_zoom_crop_image(in_image, patch_size, marg_size, visible_size, mean_c
 
 def permute_affine(in_img, r_rotate):
    
-    rot         = cv2.getRotationMatrix2D((in_img.shape[1]/2, in_img.shape[0]/2), r_rotate, 1.0) 
+    rot         = cv2.getRotationMatrix2D((in_img.shape[1]//2, in_img.shape[0]//2), r_rotate, 1.0) 
     out_img     = cv2.warpAffine(in_img, rot, (in_img.shape[1], in_img.shape[0])) 
 
     return out_img.astype(np.uint8)
@@ -130,7 +134,7 @@ patch_required      = int( round( math.sqrt(patch_size*patch_size + patch_size*p
 if patch_required%2 != 0:
     patch_required = patch_required + 1
     
-print "Loading: " + unique_list
+print("Loading: " + unique_list)
 
 in_file             = open(unique_list, 'rb')
 
@@ -138,13 +142,21 @@ item_list           = pickle.load(in_file)
 
 if not os.path.isdir(output_image_root):
     os.mkdir(output_image_root)
+    
+count_file          = os.path.join(output_image_root,"object_count.csv")
+count_file_handle   = open(count_file,'w')
+count_file_handle.write("Folder_Name,File_Name,Neg_Count,Other_Count,Pickup_Count,Sedan_Count,Unknown_Count\n")
 
 for file_dir in sorted(item_list):
     
-    print "Processing Dir:\t" + file_dir
+    print("Processing Dir:\t" + file_dir)
     
-    set_raw_root            = raw_image_root    + '/' + file_dir
-    set_output_root         = output_image_root + '/' + file_dir
+    set_raw_root            = os.path.join(raw_image_root    , file_dir)
+    set_output_root         = os.path.join(output_image_root , file_dir)
+    
+    if not os.path.isdir(set_raw_root):
+        print(">>> WARNING \"{}\" NOT FOUND, Skipping since it may be \"held-out\". You probably don\'t want this.".format(set_raw_root))
+        continue
     
     if not os.path.isdir(set_output_root):
         os.mkdir(set_output_root)
@@ -152,7 +164,7 @@ for file_dir in sorted(item_list):
 
     for file_root in sorted(item_list[file_dir]):        
 
-        raw_file = set_raw_root + '/' + file_root + '.png'
+        raw_file = os.path.join(set_raw_root, "{}.png".format(file_root))
         
         pstring =  "\tReading Raw File:\t" + raw_file + " ... "
         
@@ -161,17 +173,17 @@ for file_dir in sorted(item_list):
         
         raw_image = cv2.imread(raw_file)
         
-        print "Image Size: "
-        print raw_image.shape
+        print("Image Size: ")
+        print(raw_image.shape)
         
-        print "Done"
+        print("Done")
         
-        print "Processing:"
+        print("Processing:")
         
         counter = 0
         
-        steps_x = int(int(raw_image.shape[1])/int(step_size))
-        steps_y = int(int(raw_image.shape[0])/int(step_size))
+        steps_x = int(int(raw_image.shape[1])//int(step_size))
+        steps_y = int(int(raw_image.shape[0])//int(step_size))
         
         step_locs = []
         
@@ -189,8 +201,8 @@ for file_dir in sorted(item_list):
             loc_1 = int(locs.loc_1)
             loc_2 = int(locs.loc_2)
             
-            step_loc_1 = int(loc_1)/int(step_size)
-            step_loc_2 = int(loc_2)/int(step_size)
+            step_loc_1 = int(loc_1)//int(step_size)
+            step_loc_2 = int(loc_2)//int(step_size)
             
             step_locs[step_loc_2][step_loc_1].append(locs)
             
@@ -208,9 +220,10 @@ for file_dir in sorted(item_list):
                 if x2 > raw_image.shape[1]:
                     break 
                 
-                bb_name = "{}/{}.{}.{}.txt".format(set_output_root,file_root,x,y)         
-                im_name = "{}/{}.{}.{}.jpg".format(set_output_root,file_root,x,y)
-                ck_name = "{}/{}.{}.{}.check.jpg".format(set_output_root,file_root,x,y)
+                im_name_base    = "{}.{}.{}.jpg".format(file_root,x,y)
+                bb_name         = os.path.join(set_output_root,"{}.{}.{}.txt".format(file_root,x,y))         
+                im_name         = os.path.join(set_output_root,im_name_base)
+                ck_name         = os.path.join(set_output_root,"{}.{}.{}.check.jpg".format(file_root,x,y))
                 
                 img_patch = raw_image[y1:y2,x1:x2,:]
                 
@@ -224,12 +237,14 @@ for file_dir in sorted(item_list):
                             if locs.obj_class != 0:
                                 obj_list.append(locs)
                 
+                count = [0,0,0,0,0]
+                
+                cv2.imwrite(im_name, img_patch, [int(cv2.IMWRITE_JPEG_QUALITY), 95])   
+                img_patch_cp = copy.deepcopy(img_patch)
+                
                 if len(obj_list) > 0:                
-                    cv2.imwrite(im_name, img_patch, [int(cv2.IMWRITE_JPEG_QUALITY), 95])                
-                    
+                                 
                     bb_file = open(bb_name,'w')                
-                    
-                    img_patch_cp = copy.deepcopy(img_patch)
                     
                     # in case we want to do something else, we keep the obj_list list
                     for l in obj_list:
@@ -243,6 +258,8 @@ for file_dir in sorted(item_list):
                                 bb_file.write("{} {} {} {} {}\n".format(l.obj_class,x_loc,y_loc,h,w))
                         else:
                             bb_file.write("{} {} {} {} {}\n".format(l.obj_class,x_loc,y_loc,h,w))
+                
+                        count[l.obj_class] += 1
                 
                         if l.obj_class == 0:
                             # white
@@ -260,10 +277,10 @@ for file_dir in sorted(item_list):
                             # purple
                             col = (150, 0, 200) 
                                  
-                        x_1 = int(int(l.loc_1) - x1 + (car_size / 2))
-                        y_1 = int(int(l.loc_2) - y1 + (car_size / 2))
-                        x_2 = int(int(l.loc_1) - x1 - (car_size / 2))
-                        y_2 = int(int(l.loc_2) - y1 - (car_size / 2))
+                        x_1 = int(int(l.loc_1) - x1 + (car_size // 2))
+                        y_1 = int(int(l.loc_2) - y1 + (car_size // 2))
+                        x_2 = int(int(l.loc_1) - x1 - (car_size // 2))
+                        y_2 = int(int(l.loc_2) - y1 - (car_size // 2))
 
                         coords = [x_1, y_1, x_2, y_2]
                         for i in range(len(coords)):
@@ -275,8 +292,14 @@ for file_dir in sorted(item_list):
 
                         img_patch_cp = cv2.rectangle(img_patch_cp, (coords[0], coords[1]), (coords[2], coords[3]), col, 1)
                         
-                    cv2.imwrite(ck_name, img_patch_cp) 
-            
+                cv2.imwrite(ck_name, img_patch_cp) 
+                    
+                # Count File Format: Folder_Name,File_Name,Neg_Count,Other_Count,Pickup_Count,Sedan_Count,Unknown_Count
+                count_file_handle.write("{},{}".format(file_dir,im_name_base))
+                for i in count:
+                    count_file_handle.write(",{}".format(i)) 
+                count_file_handle.write("\n")
+                    
                 if counter > 0:
                     if counter%100 == 0:
                         sys.stdout.write('.')
@@ -286,7 +309,7 @@ for file_dir in sorted(item_list):
                         sys.stdout.flush()
                 counter += 1
             
-        print 'x'
+        print('x')
             
                     
             

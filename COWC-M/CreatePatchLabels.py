@@ -37,7 +37,6 @@
 #
 # ================================================================================================
 
-import string
 import os
 import shutil
 
@@ -54,8 +53,8 @@ type_dir            = '/Users/mundhenk1/Downloads/temp/Sorted_Cars_By_Type_15cm_
 data_dir            = '/Users/mundhenk1/Downloads/temp/64x64_15cm_24px-exc_v5-marg-32_expanded'
 
 # Where should we 
-train_list_file     = data_dir + '/train_list_TARANTO.txt'
-test_list_file      = data_dir + '/test_list_TARANTO.txt'
+train_list_file     = os.path.join(data_dir, 'train_list_TARANTO.txt')
+test_list_file      = os.path.join(data_dir, 'test_list_TARANTO.txt')
 
 # Ignore the unknown labeled cars? Set this to {4}
 ignore_list         = {4}
@@ -81,7 +80,7 @@ extra_samples   = [0,0,0,0,0]
 
 def getClass(file_name, label_set, car_prefix, endlen):    
     
-    file_part = string.split(file_name, '.')
+    file_part = file_name.split('.')
     
     if file_part[0] == car_prefix:
     
@@ -108,7 +107,7 @@ def getLabels(file_root, label_set, label_num):
         # file:
         # e.g. car.Columbus_EO_Run01_s2_301_15_00_42.40561128-Oct-2007_11-00-47.194_Frame_74.02085.01928.000.png
         
-        file_part = string.split(file, '.')
+        file_part = file.split('.')
          
         unique_name = ''
     
@@ -127,7 +126,7 @@ def getLabels(file_root, label_set, label_num):
  
 files_root  = os.listdir(type_dir)
 
-print 'Do Lists'
+print('Do Lists')
 
 label_set = {}
 
@@ -137,17 +136,17 @@ for file_dir in sorted(files_root):
         
         # e.g. /g/g17/mundhetn/data/CarsOverheadWithContext/Sorted_Cars_By_Type/CSUAV
         
-        print "Doing Type Directory: " + type_dir + '/' + file_dir
+        print("Doing Type Directory: {}".format(os.path.join(type_dir, file_dir)))
         
-        other_loc    = type_dir + '/' + file_dir + '/Other'
-        pickup_loc   = type_dir + '/' + file_dir + '/Pickup' 
-        sedan_loc    = type_dir + '/' + file_dir + '/Sedan'
-        unknown_loc  = type_dir + '/' + file_dir + '/Unknown'
+        other_loc       = os.path.join(type_dir, file_dir, 'Other')
+        pickup_loc      = os.path.join(type_dir, file_dir, 'Pickup') 
+        sedan_loc       = os.path.join(type_dir, file_dir, 'Sedan')
+        unknown_loc     = os.path.join(type_dir, file_dir, 'Unknown')
         
-        label_set = getLabels(other_loc,    label_set, 1)
-        label_set = getLabels(pickup_loc,   label_set, 2)
-        label_set = getLabels(sedan_loc,    label_set, 3)
-        label_set = getLabels(unknown_loc,  label_set, 4)
+        label_set       = getLabels(other_loc,    label_set, 1)
+        label_set       = getLabels(pickup_loc,   label_set, 2)
+        label_set       = getLabels(sedan_loc,    label_set, 3)
+        label_set       = getLabels(unknown_loc,  label_set, 4)
         
 # ================================================================================================
 # Get each sample and match to label
@@ -161,18 +160,18 @@ car_prefix      = 'car'
 
 files_root  = os.listdir(data_dir)
 
-print 'Do Lists'
+print('Do Lists')
 
 test_out_list       = open(test_list_file, 'w')
 train_out_list      = open(train_list_file, 'w')
 
 for file_dir in sorted(files_root):
         
-    if os.path.isdir(data_dir + '/' + file_dir):
+    if os.path.isdir(os.path.join(data_dir, file_dir)):
         
-        print "Doing Data Directory: " + data_dir + '/' + file_dir
+        print("Doing Data Directory: {}".format(os.path.join(data_dir,file_dir)))
         
-        test_loc    = data_dir + '/' + file_dir + '/test'
+        test_loc    = os.path.join(data_dir, file_dir, 'test')
         test_files  = os.listdir(test_loc)
         
         for test_file in sorted(test_files):
@@ -180,19 +179,19 @@ for file_dir in sorted(files_root):
             test_count[car_class] += 1 
             if car_class in ignore_list:
                 continue
-            line        = test_loc + '/' + test_file + '\t' + "{}".format(label_str_list[car_class]) + "\n"
+            line        = os.path.join(test_loc, test_file) + '\t' + "{}".format(label_str_list[car_class]) + "\n"
             test_out_list.write(line)
             test_samples += 1
            
-        train_loc   = data_dir + '/' + file_dir + '/train'
-        train_files  = os.listdir(train_loc)
+        train_loc   = os.path.join(data_dir, file_dir, 'train')
+        train_files = os.listdir(train_loc)
                     
         for train_file in sorted(train_files):
             car_class   = getClass(train_file, label_set, car_prefix, endlen)  
             train_count[car_class] += 1          
             if car_class in ignore_list:
                 continue
-            line        = train_loc + '/' + train_file + '\t' + "{}".format(label_str_list[car_class]) + "\n"
+            line        = os.path.join(train_loc, train_file) + '\t' + "{}".format(label_str_list[car_class]) + "\n"
             
             train_out_list.write(line)
             train_samples += 1
@@ -203,24 +202,24 @@ for file_dir in sorted(files_root):
                 train_count[car_class] += 1
 
 
-print "Writing: " + test_list_file
+print("Writing: {}".format(test_list_file))
 test_out_list.close()
-print "Writing: " + train_list_file
+print("Writing: {}".format(train_list_file))
 train_out_list.close()
 
-print "Train Neg: "     + "{}".format(train_count[0])
-print "Train Other: "   + "{}".format(train_count[1])
-print "Train Pickup: "  + "{}".format(train_count[2])
-print "Train Sedan: "   + "{}".format(train_count[3])
-print "Train Unknown: " + "{}".format(train_count[4])
-print "Train SAMPLES: " + "{}".format(train_samples)
+print("Train Neg: "     + "{}".format(train_count[0]))
+print("Train Other: "   + "{}".format(train_count[1]))
+print("Train Pickup: "  + "{}".format(train_count[2]))
+print("Train Sedan: "   + "{}".format(train_count[3]))
+print("Train Unknown: " + "{}".format(train_count[4]))
+print("Train SAMPLES: " + "{}".format(train_samples))
 
-print "Test Neg: "     + "{}".format(test_count[0])
-print "Test Other: "   + "{}".format(test_count[1])
-print "Test Pickup: "  + "{}".format(test_count[2])
-print "Test Sedan: "   + "{}".format(test_count[3])
-print "Test Unknown: " + "{}".format(test_count[4])
-print "Test SAMPLES: " + "{}".format(test_samples)
+print("Test Neg: "     + "{}".format(test_count[0]))
+print("Test Other: "   + "{}".format(test_count[1]))
+print("Test Pickup: "  + "{}".format(test_count[2]))
+print("Test Sedan: "   + "{}".format(test_count[3]))
+print("Test Unknown: " + "{}".format(test_count[4]))
+print("Test SAMPLES: " + "{}".format(test_samples))
 
            
             
