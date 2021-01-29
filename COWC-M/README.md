@@ -66,6 +66,10 @@
 	This method will also count the number of each type of car and put it in a single file. So, this
 	can be used to create counts of cars by type for each scene. 
 	
+(5) Please feel free to email me with questions and comments. 
+
+	This source was updated January 2021 to support Python 3 and Windows OS. 
+	
 ----
 
 T. Nathan Mundhenk
