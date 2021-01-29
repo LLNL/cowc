@@ -11,6 +11,8 @@
 #
 # February 2018
 #
+# mundhenk1@llnl.gov
+#
 # ================================================================================================
 #
 #    Copyright (C) 2018 Lawrence Livermore National Security
@@ -76,7 +78,9 @@ car_size            = 32
 
 class CarProp:
     def __init__(self,phase,type,loc_1,loc_2,obj_class):
-        
+        r"""    
+            This stores attributes for each car in the dataset.
+        """
         self.phase      = phase
         self.type       = type
         self.loc_1      = loc_1
@@ -86,7 +90,9 @@ class CarProp:
 #========================================================================================================================
        
 def create_zoom_crop_image(in_image, patch_size, marg_size, visible_size, mean_color, zoom):
-    
+    r"""    
+        This will crop out an image and optionally add a margin or zoom in on it.
+    """
     out_image           = np.empty((patch_size,patch_size,3),dtype=np.uint8)
     out_image[:,:,0]    = mean_color[0]
     out_image[:,:,1]    = mean_color[1]
@@ -118,7 +124,9 @@ def create_zoom_crop_image(in_image, patch_size, marg_size, visible_size, mean_c
 #========================================================================================================================
 
 def permute_affine(in_img, r_rotate):
-   
+    r"""    
+        This will properly rotate an image patch.
+    """
     rot         = cv2.getRotationMatrix2D((in_img.shape[1]//2, in_img.shape[0]//2), r_rotate, 1.0) 
     out_img     = cv2.warpAffine(in_img, rot, (in_img.shape[1], in_img.shape[0])) 
 
@@ -134,7 +142,8 @@ part_steps = int(patch_size / step_size)
 patch_required      = int( round( math.sqrt(patch_size*patch_size + patch_size*patch_size)/2.0 ) )*2
 if patch_required%2 != 0:
     patch_required = patch_required + 1
-    
+
+# Get the list of all pre-annotated objects. 
 print("Loading: " + unique_list)
 
 in_file             = open(unique_list, 'rb')
@@ -143,11 +152,13 @@ item_list           = pickle.load(in_file)
 
 if not os.path.isdir(output_image_root):
     os.mkdir(output_image_root)
-    
+
+# We will store a single CSV file with the counts of cars from all patches we generate. 
 count_file          = os.path.join(output_image_root,"object_count.csv")
 count_file_handle   = open(count_file,'w')
 count_file_handle.write("Folder_Name,File_Name,Neg_Count,Other_Count,Pickup_Count,Sedan_Count,Unknown_Count\n")
 
+# For each large sub directory set we have (e.g. Utah, Selwyn)
 for file_dir in sorted(item_list):
     
     print("Processing Dir:\t" + file_dir)
@@ -161,7 +172,8 @@ for file_dir in sorted(item_list):
     
     if not os.path.isdir(set_output_root):
         os.mkdir(set_output_root)
-        
+     
+    # For each large raw file in this sub directory set...    
     for file_root in sorted(item_list[file_dir]):        
 
         raw_file = os.path.join(set_raw_root, "{}.png".format(file_root))
@@ -171,6 +183,7 @@ for file_dir in sorted(item_list):
         sys.stdout.write(pstring)
         sys.stdout.flush()
         
+        # Read the large raw overhead file
         raw_image = cv2.imread(raw_file)
         
         print("Image Size: ")
@@ -182,6 +195,7 @@ for file_dir in sorted(item_list):
         
         counter = 0
         
+        # Get how many patches/steps we will have using patch size and stride
         steps_x = int(int(raw_image.shape[1])//int(step_size))
         steps_y = int(int(raw_image.shape[0])//int(step_size))
         
@@ -194,7 +208,7 @@ for file_dir in sorted(item_list):
                 
             step_locs.append(ts)
         
-        
+        # stuff objects into location bins
         for locs in item_list[file_dir][file_root]:
             
             loc_1 = int(locs.loc_1)
@@ -206,6 +220,7 @@ for file_dir in sorted(item_list):
             step_locs[step_loc_2][step_loc_1].append(locs)
             
         for y in range(steps_y):
+            # Patch bounds along Y
             y1 = y * step_size
             y2 = y1 + patch_size 
             
@@ -213,12 +228,14 @@ for file_dir in sorted(item_list):
                 break
             
             for x in range(steps_x):
+                # Patch bounds along X
                 x1 = x * step_size
                 x2 = x1 + patch_size             
                 
                 if x2 > raw_image.shape[1]:
                     break 
                 
+                # File names for things we will save
                 im_name_base    = "{}.{}.{}.jpg".format(file_root,x,y)
                 bb_name         = os.path.join(set_output_root,"{}.{}.{}.txt".format(file_root,x,y))         
                 im_name         = os.path.join(set_output_root,im_name_base)
@@ -226,6 +243,7 @@ for file_dir in sorted(item_list):
                 
                 img_patch = raw_image[y1:y2,x1:x2,:]
                 
+                # Get a list of all objects within this image patch
                 obj_list = []
                 
                 for sy in range(part_steps):
@@ -236,9 +254,15 @@ for file_dir in sorted(item_list):
                 
                 count = [0,0,0,0,0]
                 
+                # Write out the raw unlabeled image patch
                 cv2.imwrite(im_name, img_patch, [int(cv2.IMWRITE_JPEG_QUALITY), 95])   
                 img_patch_cp = copy.deepcopy(img_patch)
                 
+                r"""
+                    Is there at least on object in the patch? Otherwise don't bother trying
+                    to draw the bounding box images with boxes. We also skip creating the
+                    bounding box list file. 
+                """
                 if len(obj_list) > 0:                
                                  
                     bb_file = open(bb_name,'w')                
@@ -250,14 +274,17 @@ for file_dir in sorted(item_list):
                         h       = float(car_size)/float(patch_size)
                         w       = float(car_size)/float(patch_size)
                         
+                        # Write out the bounding boxes
                         if cars_only:
                             if l.obj_class != 0:        
                                 bb_file.write("{} {} {} {} {}\n".format(l.obj_class,x_loc,y_loc,h,w))
                         else:
                             bb_file.write("{} {} {} {} {}\n".format(l.obj_class,x_loc,y_loc,h,w))
                 
+                        # Count this object
                         count[l.obj_class] += 1
                 
+                        # Get the color which goes with this class
                         if l.obj_class == 0:
                             # white
                             col = (255, 255, 255)
@@ -273,13 +300,15 @@ for file_dir in sorted(item_list):
                         elif l.obj_class == 4:
                             # purple
                             col = (150, 0, 200) 
-                                 
+                        
+                        # Get the bounding box for drawing in OpenCV
                         x_1 = int(int(l.loc_1) - x1 + (car_size // 2))
                         y_1 = int(int(l.loc_2) - y1 + (car_size // 2))
                         x_2 = int(int(l.loc_1) - x1 - (car_size // 2))
                         y_2 = int(int(l.loc_2) - y1 - (car_size // 2))
 
                         coords = [x_1, y_1, x_2, y_2]
+                        # Check bounds
                         for i in range(len(coords)):
                             coord = coords[i]
                             if coord < 0:
@@ -287,16 +316,23 @@ for file_dir in sorted(item_list):
                             if coord > patch_size:
                                 coords[i] = patch_size
 
+                        # Draw the box
                         img_patch_cp = cv2.rectangle(img_patch_cp, (coords[0], coords[1]), (coords[2], coords[3]), col, 1)
-                        
+                
+                # Write the image with the bounding boxes in it.         
                 cv2.imwrite(ck_name, img_patch_cp) 
+                
+                r"""   
+                    Write out a central file with the count of each vehicle type for each patch.
                     
-                # Count File Format: Folder_Name,File_Name,Neg_Count,Other_Count,Pickup_Count,Sedan_Count,Unknown_Count
+                    Count File Format: Folder_Name,File_Name,Neg_Count,Other_Count,Pickup_Count,Sedan_Count,Unknown_Count
+                """
                 count_file_handle.write("{},{}".format(file_dir,im_name_base))
                 for i in count:
                     count_file_handle.write(",{}".format(i)) 
                 count_file_handle.write("\n")
-                    
+                
+                # Show a very simple progress counter
                 if counter > 0:
                     if counter%100 == 0:
                         sys.stdout.write('.')
