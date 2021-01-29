@@ -50,14 +50,14 @@ import sys
 import copy
 
 # ftp://gdo152.ucllnl.org/cowc-m/datasets/Objects_All.pickle
-unique_list         = '/Users/mundhenk1/Downloads/temp/Objects_All.pickle'
-#unique_list         = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Objects_All.pickle" # Windows Example
+#unique_list         = '/Users/mundhenk1/Downloads/temp/Objects_All.pickle'
+unique_list         = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Objects_All.pickle" # Windows Example
 # ftp://gdo152.ucllnl.org/cowc-m/datasets/Organized_Raw_Files.tgz
-raw_image_root      = '/Users/mundhenk1/Downloads/temp/Organized_Raw_Files'
-#raw_image_root      = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Organized_Raw_Files" # Windows Example
+#raw_image_root      = '/Users/mundhenk1/Downloads/temp/Organized_Raw_Files'
+raw_image_root      = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Organized_Raw_Files" # Windows Example
 # Somewhere on your local drive
-output_image_root   = '/Users/mundhenk1/Downloads/temp/DetectionPatches_256x256'
-#output_image_root   = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\outputs\DetectionPatches_256x256" # Windows Example
+#output_image_root   = '/Users/mundhenk1/Downloads/temp/DetectionPatches_256x256'
+output_image_root   = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\outputs\DetectionPatches_256x256" # Windows Example
 
 # How large should each example patch be
 patch_size          = 256

@@ -30,6 +30,8 @@
 	for each scene. This is called:
 	
 		CreatePatchScenes.py
+		
+	It will also count the number of each car type in each image for use with the counting task. 
 
 (3)	Creating new patches
 
@@ -54,12 +56,15 @@
 	training images. Next you will need to run CreatePatchLabels.py to create a set of patch labels. 
 	Once you have called both, you should have all you need to train a Caffe network on your data. 
 
-(4)	Creating new scenes
+(4)	Creating new scenes and counting
 
 	You run this in the same way as for creating training patches, but you don’t need to run a script 
 	to extract labels. This is in part because different detection engines use different labeling 
 	schemes. You should use the script CreatePatchScenes.py more as an example for how to do this 
 	and make changes as needed. 
+	
+	This method will also count the number of each type of car and put it in a single file. So, this
+	can be used to create counts of cars by type for each scene. 
 	
 ----
 
