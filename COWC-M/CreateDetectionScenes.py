@@ -49,13 +49,13 @@ import copy
 
 # ftp://gdo152.ucllnl.org/cowc-m/datasets/Objects_All.pickle
 unique_list         = '/Users/mundhenk1/Downloads/temp/Objects_All.pickle'
-#unique_list         = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Objects_All.pickle"
+#unique_list         = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Objects_All.pickle" # Windows Example
 # ftp://gdo152.ucllnl.org/cowc-m/datasets/Organized_Raw_Files.tgz
 raw_image_root      = '/Users/mundhenk1/Downloads/temp/Organized_Raw_Files'
-#raw_image_root      = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Organized_Raw_Files"
+#raw_image_root      = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\datasets\Organized_Raw_Files" # Windows Example
 # Somewhere on your local drive
 output_image_root   = '/Users/mundhenk1/Downloads/temp/DetectionPatches_256x256'
-#output_image_root   = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\outputs\DetectionPatches_256x256"
+#output_image_root   = r"C:\Users\mundhenk1\Downloads\COWC\cowc-m\outputs\DetectionPatches_256x256" # Windows Example
 
 # How large should each example patch be
 patch_size          = 256
@@ -76,6 +76,7 @@ car_size            = 32
 
 class CarProp:
     def __init__(self,phase,type,loc_1,loc_2,obj_class):
+        
         self.phase      = phase
         self.type       = type
         self.loc_1      = loc_1
@@ -161,7 +162,6 @@ for file_dir in sorted(item_list):
     if not os.path.isdir(set_output_root):
         os.mkdir(set_output_root)
         
-
     for file_root in sorted(item_list[file_dir]):        
 
         raw_file = os.path.join(set_raw_root, "{}.png".format(file_root))
@@ -190,7 +190,6 @@ for file_dir in sorted(item_list):
         for y in range(steps_y + 1):
             ts = []
             for x in range(steps_x + 1):
-
                 ts.append([])
                 
             step_locs.append(ts)
@@ -231,9 +230,7 @@ for file_dir in sorted(item_list):
                 
                 for sy in range(part_steps):
                     for sx in range(part_steps):
-                        
                         for locs in step_locs[y + sy][x + sx]:                         
-                            
                             if locs.obj_class != 0:
                                 obj_list.append(locs)
                 
