@@ -29,7 +29,7 @@
 	detection methods such as Faster-RCNN. This creates multiple patch scenes and a location label 
 	for each scene. This is called:
 	
-		CreatePatchScenes.py
+		CreateDetectionScenes.py
 		
 	It will also count the number of each car type in each image for use with the counting task. 
 
